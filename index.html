@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="google" content="notranslate">
+    <title>Las fases de la Luna</title>
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/icono.ico">
+    <style>
+        /* ====== Reset & base ====== */
+        * { box-sizing: border-box; margin:0; padding:0; }
+        :root{
+            --blue:#001DFF;
+            --blue-dark:#04032B;
+            --blue-700:#1a3a5f;
+            --blue-600:#254fba;
+            --orange:#f59e42;
+            --orange-700:#e67e22;
+            --bg-grad-1:#1a3a5f;
+            --bg-grad-2:#0d2340;
+            --white:#ffffff;
+            --green:#2ecc71;
+            --red:#e74c3c;
+            --panel:#E8EAFF;
+        }
+        body{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+            min-height:100vh; 
+            display:flex; 
+            justify-content:center; 
+            align-items: flex-start; 
+            padding-top: 20px;
+            padding-bottom: 20px;
+            color:#333; 
+        }
+        .game-container{
+            background:var(--white); border-radius:16px; box-shadow:0 12px 24px rgba(0,0,0,.12);
+            padding:1.2rem; max-width:980px; width:100%; min-height:640px; position:relative; overflow:hidden;
+            display:flex; flex-direction:column;
+            margin-bottom: 2rem; 
+        }
+        header{ text-align:center; margin-bottom:.8rem; margin-top:1.5rem; }
+        h1{ color:var(--blue-dark); font-size:clamp(2rem,5.2vw,3.1rem); font-weight:900; letter-spacing:.5px; }
+        .subtitle{ color:var(--blue-700); font-size:clamp(1rem,3.5vw,1.25rem); margin-top:.25rem; }
+        .highlight-keyword{ color:var(--orange); font-weight:800; }
+
+        .btn{ color:#fff; border:none; padding:.75rem 1.2rem; border-radius:10px; cursor:pointer; font-weight:800;
+            transition:transform .08s ease, box-shadow .2s ease, background-color .25s ease; min-width:140px; height:48px;
+            display:inline-flex; align-items:center; justify-content:center; font-size: 1rem; }
+        .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.12); }
+        .btn:active{ transform:translateY(0); }
+        .btn-primary{ background:var(--orange); }
+        .btn-primary:hover{ background:var(--orange-700); }
+        .btn-blue{ background:var(--blue-600); }
+        .btn-blue:hover{ filter:brightness(.9); }
+        .btn-ghost{ background:#e6f2ff; color:var(--blue-700); }
+
+        .screen{ display:none; animation:fadeIn .35s ease; flex-direction:column; flex:1; }
+        .screen.active{ display:flex; }
+        @keyframes fadeIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+
+        .game-info{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin:.4rem 0 1rem; flex-wrap:wrap; }
+        .timer{ font-weight:900; color:var(--blue-700); font-size:clamp(.95rem,2.3vw,1.15rem); }
+        .progress-bar{ flex:1; height:10px; background:#e6f2ff; border-radius:999px; overflow:hidden; }
+        .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--orange) 0%, var(--orange-700) 100%); transition:width .3s ease; }
+        .level-indicator{ font-weight:700; color: var(--blue-700); font-size: 0.9rem; background: #e6f2ff; padding: 4px 10px; border-radius: 20px; }
+
+        /* Pantalla Inicio */
+        .start-content{ display:flex; flex-direction:column; justify-content:center; align-items:center; flex:1; gap:1rem; padding:1rem; }
+        .advice-box{ background:var(--panel); border-left:4px solid var(--blue-700); padding:1rem 1.2rem; border-radius:12px;
+            color:var(--blue-700); max-width:760px; text-align:center; font-size:clamp(1rem,3vw,1.15rem); }
+        .start-image{ max-width: 300px; width: 100%; margin: 0 auto; }
+        
+        .mute-btn{ position:absolute; top:.8rem; right:4.5rem; background:var(--orange); color:#fff; border:2px solid #fff; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; z-index:20; }
+        .mute-btn:hover{ background:var(--orange-700); }
+
+        /* Pantalla Resumen */
+        .theory-content { 
+            padding: 10px; 
+            margin: 10px 0;
+            width: 100%;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 2px solid var(--blue-600);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .summary-table th {
+            background: var(--blue-600);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            width: 25%;
+        }
+        .summary-table td {
+            background: white;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #e6f2ff;
+            vertical-align: middle;
+        }
+        .summary-table tr:last-child td { border-bottom: none; }
+        .summary-table img {
+            max-width: 80px;
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s;
+        }
+        .summary-table img:hover { transform: scale(1.1); }
+        .def-cell { font-size: clamp(0.8rem, 2vw, 0.95rem); color: #444; line-height: 1.4; }
+
+        /* Juegos 1 y 2 */
+        .game-container-generic {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            flex: 1;
+        }
+        
+        .image-display, .text-display {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent; 
+            min-height: 250px;
+        }
+        /* Juego 1: Imágenes con tamaño uniforme */
+        .image-display img {
+            width: 200px; /* Tamaño fijo para igualar escala */
+            height: 200px; /* Tamaño fijo */
+            max-width: 100%;
+            object-fit: contain; /* Mantiene proporción sin recortar */
+            border-radius: 8px;
+        }
+        .text-content {
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            color: var(--blue-dark);
+            text-align: center;
+            font-weight: 600;
+            background: var(--panel);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Lista desplegable */
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            width: 100%;
+            max-width: 400px;
+            z-index: 50;
+        }
+        .custom-select {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .custom-select__trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--blue-700);
+            height: 50px;
+            line-height: 50px;
+            background: #fff;
+            border: 2px solid var(--blue-600);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .custom-select__trigger:hover { border-color: var(--orange); }
+        .custom-select__trigger::after {
+            content: '';
+            width: 10px; height: 10px;
+            border-right: 2px solid var(--blue-700);
+            border-bottom: 2px solid var(--blue-700);
+            transform: rotate(45deg);
+            margin-top: -5px;
+            transition: transform 0.2s;
+        }
+        .custom-select.open .custom-select__trigger::after {
+            transform: rotate(-135deg);
+            margin-top: 5px;
+        }
+        .custom-options {
+            position: absolute;
+            display: block;
+            top: auto; 
+            bottom: 100%; 
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 2px solid var(--blue-600);
+            border-bottom: 0;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+        .custom-select.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+        .custom-option {
+            position: relative;
+            display: block;
+            padding: 0 1.2rem;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--blue-700);
+            line-height: 45px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .custom-option:hover { background-color: #e6f2ff; color: var(--orange); }
+        .custom-option.selected { background-color: var(--panel); color: var(--blue-dark); font-weight: 700; }
+        
+        .custom-select__trigger.correct {
+            border-color: var(--green);
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--green);
+        }
+        .custom-select__trigger.wrong {
+            border-color: var(--red);
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--red);
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .action-area {
+            height: 50px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Juego 3: Emparejar */
+        .match-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+            padding: 1rem;
+            flex: 1;
+        }
+        .match-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .match-card {
+            background: var(--blue-600);
+            color: white;
+            border: 4px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            /* Altura fija para igualar columnas */
+            height: 120px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+        }
+        .match-card img {
+            max-width: 100%;
+            max-height: 80px; /* Ajuste interno para imagen */
+            object-fit: contain;
+        }
+        .match-card:hover:not(.matched) {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .match-card.selected {
+            border-color: var(--blue-dark);
+            animation: pulse 1s infinite;
+        }
+        .match-card.matched {
+            background-color: #e0e0e0;
+            border-color: #ccc;
+            color: #888;
+            filter: grayscale(100%) sepia(10%);
+            transform: scale(0.9);
+            cursor: default;
+            opacity: 0.7;
+        }
+        .match-card.flash-error {
+            animation: shake 0.3s ease-in-out;
+            border-color: var(--red);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 79, 186, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(37, 79, 186, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 79, 186, 0); }
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Pantalla Final */
+        .results{ display:flex; flex-direction:column; align-items:center; gap:.6rem; text-align:center; flex:1; justify-content:center;}
+        .final-title{ color:var(--blue-dark); font-weight:900; }
+        .big-score{ font-size:clamp(2.2rem,6vw,3.4rem); color:var(--blue-600); font-weight:900; }
+        .score-title{ font-size:1.0rem; color:var(--blue-700); margin-top:1rem; }
+        .final-time{ color:var(--blue-700); }
+        
+        #trophyBox { display: none; font-size: clamp(4rem, 10vw, 7rem); margin: .5rem 0; text-align: center; align-self: center; animation: bounce 1s ease infinite; color: var(--orange); line-height: 1; }
+        @keyframes bounce { 0%,100%{ transform: translateY(0) scale(1); } 50%{ transform: translateY(-15px) scale(1.1); } }
+        
+        .credit{ color:var(--blue-700); margin-top:1rem; }
+        #finalMsg { font-size: clamp(1.2rem, 4.2vw, 1.8rem); font-weight: 800; color: var(--blue-700); margin-top: 0.6rem; }
+        .school-logo { display: block; width: 160px; max-width: 28%; height: auto; margin-top: 0.8rem; border-radius: 8px; object-fit: contain; }
+        @media (max-width: 899px) { .school-logo { width: 140px; max-width: 160px; } }
+        @media (max-width: 420px) { .school-logo { width: 110px; max-width: 40%; margin-top: 0.6rem; } }
+
+        /* --- ESTILOS DEL HALL OF FAME --- */
+        .hall-of-fame { background: var(--panel); border-radius: 12px; padding: 1rem; margin-top: 1.5rem; width: 100%; max-width: 600px; }
+        .hall-of-fame-title { color: var(--blue-700); font-weight: 800; font-size: 1.2rem; text-align: center; margin-bottom: 0.8rem; }
+        .hall-of-fame-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .hall-of-fame-table th { background: var(--blue-600); color: white; padding: 0.5rem; text-align: left; }
+        .hall-of-fame-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #ddd; }
+        .hall-of-fame-table tr:last-child td { border-bottom: none; }
+        .hall-of-fame-table tr:nth-child(even) { background-color: rgba(255, 255,255, 0.5); }
+        .hall-of-fame-error, .hall-of-fame-loading { padding: 1rem; text-align: center; color: var(--blue-700); font-style: italic; }
+        .hall-of-fame-error { color: var(--red); }
+
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+        .modal-content { background:white; padding:2rem; border-radius:15px; width:90%; max-width:400px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+        .modal-input { width:100%; padding:10px; margin:10px 0; border:2px solid #ddd; border-radius:8px; font-size:1rem; }
+        
+        .confetti{ position:fixed; width:10px; height:10px; border-radius:50%; animation: confetti-fall 3s linear forwards; z-index:999; }
+        @keyframes confetti-fall{ 0%{ transform:translate(0, -20px) rotate(0); opacity:1;} 100%{ transform:translate(var(--tx), var(--ty)) rotate(360deg); opacity:0; } }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <button class="mute-btn" id="muteBtn" title="Silenciar/Activar sonido">🔊</button>
+
+    <!-- Pantalla de Inicio -->
+    <section class="screen active" id="startScreen">
+        <header>
+            <h1>La Luna, nuestro satélite</h1>
+            <div class="subtitle">Las fases de la Luna</div>
+        </header>
+
+        <div class="start-content">
+            <div class="advice-box">
+                <span class="advice-text">Recuerda que, según la posición de la Tierra y la Luna, podemos identificar cuatro fases principales: <span class="highlight-keyword">nueva, creciente, llena, menguante</span>.
+                    <strong style="display:block; margin-top:0.5rem; text-align: center;">¡Ánimo!</strong>
+                </span>
+            </div>
+            
+            <button class="btn btn-primary" id="startBtn">Comenzar</button>
+            
+            <img class="start-image" src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Ni%C3%B1os.png" alt="Kids learning">
+            
+            <!-- Hall of Fame -->
+            <div class="hall-of-fame" id="hallOfFame">
+              <div class="hall-of-fame-title">🏆 Mejores puntuaciones 🏆</div>
+              <table class="hall-of-fame-table">
+                  <thead>
+                        <tr>
+                            <th>Posición</th>
+                            <th>Nombre</th>
+                            <th>Puntos</th>
+                            <th>Tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hofTableBody"></tbody>
+              </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pantalla Resumen -->
+    <section class="screen" id="summaryScreen">
+        <header>
+            <h1>Estudia las fases de la Luna</h1>
+        </header>
+        <div class="theory-content">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Nueva</th>
+                        <th>Creciente</th>
+                        <th>Llena</th>
+                        <th>Menguante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><img src="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Nueva.png" alt="Luna Nueva"></td>
+                        <td><img src="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Creciente.png" alt="Cuarto Creciente"></td>
+                        <td><img src="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/LLena.png" alt="Luna Llena"></td>
+                        <td><img src="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Menguante.png" alt="Cuarto Menguante"></td>
+                    </tr>
+                    <tr>
+                        <td class="def-cell">No vemos la Luna porque el Sol ilumina la <span class="highlight-keyword">cara oculta</span>.</td>
+                        <td class="def-cell">Vemos la mitad de la Luna. Tiene <span class="highlight-keyword">forma de D</span></td>
+                        <td class="def-cell">Vemos la luna totalmente <span class="highlight-keyword">llena</span></td>
+                        <td class="def-cell">Vemos la mitad de la Luna iluminada. Tiene <span class="highlight-keyword">forma de C</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-primary" id="playBtn">Jugar</button>
+        </div>
+    </section>
+
+    <!-- Pantalla Juego 1: Identificar Imágenes -->
+    <section class="screen" id="game1Screen">
+        <header>
+            <h1>Indica las fases de la Luna</h1>
+            <div class="subtitle">Usa la <span class="highlight-keyword">lista desplegable</span> para seleccionar el grupo.</div>
+        </header>
+        <div class="game-info">
+            <div class="timer" id="timerGame1">00:00.0</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillGame1"></div></div>
+            <div class="level-indicator">Nivel 1/4</div>
+        </div>
+
+        <div class="game-container-generic">
+            <div class="image-display" id="game1Display">
+                <!-- Imagen JS -->
+            </div>
+
+            <div class="custom-select-wrapper drop-up">
+                <div class="custom-select" id="customSelectGame1">
+                    <div class="custom-select__trigger"><span>Fase lunar</span></div>
+                    <div class="custom-options">
+                        <span class="custom-option" data-value="Nueva">Nueva</span>
+                        <span class="custom-option" data-value="Cuarto creciente">Cuarto creciente</span>
+                        <span class="custom-option" data-value="Llena">Llena</span>
+                        <span class="custom-option" data-value="Cuarto menguante">Cuarto menguante</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <button class="btn btn-primary" id="checkBtnGame1">Comprobar</button>
+                <button class="btn btn-primary" id="continueBtnGame1" style="display:none;">Continuar</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pantalla Juego 2: Identificar Definiciones -->
+    <section class="screen" id="game2Screen">
+        <header>
+            <h1>¿A qué fase de la Luna se refiere?</h1>
+            <div class="subtitle">Usa la <span class="highlight-keyword">lista desplegable</span> para seleccionar el grupo.</div>
+        </header>
+        <div class="game-info">
+            <div class="timer" id="timerGame2">00:00.0</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillGame2"></div></div>
+            <div class="level-indicator">Nivel 2/4</div>
+        </div>
+
+        <div class="game-container-generic">
+            <div class="text-display">
+                <div class="text-content" id="game2Text"></div>
+            </div>
+
+            <div class="custom-select-wrapper drop-up">
+                <div class="custom-select" id="customSelectGame2">
+                    <div class="custom-select__trigger"><span>Fase lunar</span></div>
+                    <div class="custom-options">
+                        <span class="custom-option" data-value="Nueva">Nueva</span>
+                        <span class="custom-option" data-value="Cuarto creciente">Cuarto creciente</span>
+                        <span class="custom-option" data-value="Llena">Llena</span>
+                        <span class="custom-option" data-value="Cuarto menguante">Cuarto menguante</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <button class="btn btn-primary" id="checkBtnGame2">Comprobar</button>
+                <button class="btn btn-primary" id="continueBtnGame2" style="display:none;">Continuar</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pantalla Juego 3: Emparejar -->
+    <section class="screen" id="game3Screen">
+        <header>
+            <h1>Las fases de la Luna</h1>
+            <div class="subtitle">Relaciona las imágenes con su fase.</div>
+        </header>
+        <div class="game-info">
+            <div class="timer" id="timerGame3">00:00.0</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillGame3"></div></div>
+            <div class="level-indicator">Nivel 3/4</div>
+        </div>
+        <div class="match-container" id="matchContainer">
+            <!-- Columnas generadas por JS -->
+        </div>
+    </section>
+
+    <!-- Pantalla Final -->
+    <section class="screen" id="finalScreen">
+        <header>
+            <h1 class="final-title">Las fases de la Luna</h1>
+        </header>
+        <div class="results">
+            <div id="trophyBox">🏆</div>
+            
+            <div class="score-title">Puntuación:</div>
+            <div class="big-score" id="finalScore">0</div>
+            <div class="final-time">Tiempo: <span id="finalTime">00:00.0</span></div>
+            <div id="finalMsg" class="subtitle"></div>
+            <button class="btn btn-primary" id="backToMenuBtn" style="background:var(--orange);">Volver al menú</button>
+            <span class="credit">Creado por Manuel J. Ventura</span>
+            <img class="school-logo" src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Siurot.png" alt="School logo" />
+        </div>
+    </section>
+</div>
+
+<!-- Modal de Envío de Puntuación -->
+<div id="submitModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>¡Juego Terminado!</h3>
+        <p>Tu tiempo: <span id="modalTime">00:00.0</span></p>
+        <input type="text" id="playerName" class="modal-input" placeholder="Nombre" maxlength="15">
+        <input type="text" id="playerSurname" class="modal-input" placeholder="Apellido" maxlength="20">
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="submitScoreBtn" class="btn btn-primary">Guardar</button>
+            <button id="discardScoreBtn" class="btn btn-ghost">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- 1. CONFIGURACIÓN DE VARIABLES GLOBALES (CRÍTICO) --- */
+    const SHEET_NAME = "Luna";
+    const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzunJPNdm7uXAmQCTU4d4Cll0xPJ0Jl-XUKxf_R_o95o6NcZONdhUpdYYUpK5yYIacHog/exec";
+    
+    let soundEnabled = true;
+    let audioUnlocked = false;
+    let isMuted = false;
+
+    let startTime = 0;
+    let timerInterval = null;
+    let elapsed = 0;
+    let finalTimeVal = 0;
+    let finalScoreVal = 0;
+
+    // Contadores de intentos/aciertos para puntuación
+    let correctGame1 = 0;
+    let attemptsGame1 = 0;
+    let correctGame2 = 0;
+    let attemptsGame2 = 0;
+    let matchesGame3 = 0;
+    let attemptsGame3 = 0;
+
+    /* --- AUDIOS --- */
+    const audioUrls = {
+        correct: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Correcto.mp3',
+        error: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Error.mp3',
+        tap: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Tap.mp3',
+        victory: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Termin%C3%A9.mp3',
+        completed: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Completado.mp3'
+    };
+    
+    const audioObjects = {};
+    Object.keys(audioUrls).forEach(key => { 
+        const a = new Audio();
+        a.src = audioUrls[key];
+        a.preload = 'auto';
+        audioObjects[key] = a; 
+    });
+
+    /* --- DATOS DEL JUEGO --- */
+    const game1Data = [
+        { type: 'Nueva', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Nueva.png' },
+        { type: 'Cuarto creciente', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Creciente.png' },
+        { type: 'Llena', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/LLena.png' },
+        { type: 'Cuarto menguante', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Menguante.png' }
+    ];
+
+    const game2Data = [
+        { type: 'Nueva', text: 'El Sol ilumina la cara oculta y no podemos ver la Luna' },
+        { type: 'Cuarto creciente', text: 'Vemos la mitad de la Luna iluminada y la otra mitad en sombra. La Luna tiene forma de D' },
+        { type: 'Llena', text: 'Vemos la luna totalmente iluminada' },
+        { type: 'Cuarto menguante', text: 'Vemos la mitad de la Luna iluminada y la otra mitad en sombra. La Luna tiene forma de C' }
+    ];
+
+    const game3Data = [
+        { id: 1, term: 'Nueva', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Nueva.png' },
+        { id: 2, term: 'Cuarto creciente', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Creciente.png' },
+        { id: 3, term: 'Llena', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/LLena.png' },
+        { id: 4, term: 'Cuarto menguante', img: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Menguante.png' }
+    ];
+
+    /* --- FUNCIONES DE AUDIO --- */
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(); const g = ctx.createGain();
+            osc.connect(g); g.connect(ctx.destination); g.gain.value = 0.001;
+            osc.start(); osc.stop(ctx.currentTime + 0.01);
+            audioUnlocked = true;
+            isMuted = false;
+        } catch(e) { audioUnlocked = true; }
+    }
+
+    function playSound(type) {
+        if (!soundEnabled || isMuted) return;
+        if (!audioUnlocked) unlockAudio();
+        const a = audioObjects[type];
+        if(!a) return;
+        try { a.currentTime = 0; a.play(); } catch(e){}
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        isMuted = !soundEnabled;
+        document.getElementById('muteBtn').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    /* --- LÓGICA GENERAL --- */
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGlobalTimer() {
+        stopTimer();
+        startTime = Date.now();
+        elapsed = 0;
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const delta = (now - startTime) / 1000;
+            elapsed = delta;
+            
+            const timeStr = formatTime(delta);
+            
+            if(document.getElementById('timerGame1')) document.getElementById('timerGame1').textContent = timeStr;
+            if(document.getElementById('timerGame2')) document.getElementById('timerGame2').textContent = timeStr;
+            if(document.getElementById('timerGame3')) document.getElementById('timerGame3').textContent = timeStr;
+        }, 100);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        const ms = Math.round((sec % 1) * 10);
+        return `${m}:${s}.${ms}`;
+    }
+
+    /* --- FLUJO PRINCIPAL --- */
+    document.getElementById('startBtn').onclick = () => { 
+        playSound('tap'); 
+        showScreen('summaryScreen'); 
+    };
+    
+    document.getElementById('playBtn').onclick = () => { 
+        playSound('tap'); 
+        startGlobalTimer();
+        initGame1();
+    };
+
+    /* --- JUEGO 1: IDENTIFICAR IMÁGENES --- */
+    let game1Items = [];
+    let currentIndex1 = 0;
+    let currentSelection1 = null;
+    const totalItems1 = 4;
+
+    const select1 = document.getElementById('customSelectGame1');
+    const trigger1 = select1.querySelector('.custom-select__trigger');
+    const options1 = select1.querySelectorAll('.custom-option');
+
+    trigger1.addEventListener('click', () => {
+        select1.classList.toggle('open');
+        playSound('tap');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (!select1.contains(e.target)) select1.classList.remove('open');
+    });
+
+    options1.forEach(option => {
+        option.addEventListener('click', function() {
+            if(!select1.classList.contains('open')) return;
+            select1.classList.remove('open');
+            trigger1.querySelector('span').textContent = this.textContent;
+            select1.classList.add('selected'); 
+            currentSelection1 = this.getAttribute('data-value');
+            trigger1.classList.remove('correct', 'wrong');
+            playSound('tap'); // Sonido tap al seleccionar ítem
+        });
+    });
+
+    document.getElementById('checkBtnGame1').onclick = checkAnswerGame1;
+    document.getElementById('continueBtnGame1').onclick = nextLevelGame1;
+
+    function initGame1() {
+        showScreen('game1Screen');
+        correctGame1 = 0;
+        attemptsGame1 = 0;
+        currentIndex1 = 0;
+        updateProgress('progressFillGame1', 0);
+        
+        game1Items = shuffle([...game1Data]);
+        loadQuestionGame1();
+    }
+
+    function loadQuestionGame1() {
+        const item = game1Items[currentIndex1];
+        const display = document.getElementById('game1Display');
+        display.innerHTML = `<img src="${item.img}" alt="Fase lunar">`;
+        
+        trigger1.querySelector('span').textContent = 'Fase lunar';
+        trigger1.classList.remove('selected', 'correct', 'wrong');
+        currentSelection1 = null;
+        
+        document.getElementById('checkBtnGame1').style.display = 'inline-flex';
+        document.getElementById('continueBtnGame1').style.display = 'none';
+    }
+
+    function checkAnswerGame1() {
+        if (!currentSelection1) {
+            alert("Por favor, selecciona una opción.");
+            return;
+        }
+        attemptsGame1++;
+        const correctType = game1Items[currentIndex1].type;
+
+        if (currentSelection1 === correctType) {
+            playSound('correct');
+            correctGame1++;
+            trigger1.classList.remove('wrong');
+            trigger1.classList.add('correct');
+            setTimeout(nextLevelGame1, 200);
+        } else {
+            playSound('error');
+            trigger1.classList.remove('correct');
+            trigger1.classList.add('wrong');
+            
+            document.getElementById('checkBtnGame1').style.display = 'none';
+            document.getElementById('continueBtnGame1').style.display = 'inline-flex';
+        }
+    }
+
+    function nextLevelGame1() {
+        currentIndex1++;
+        updateProgress('progressFillGame1', (currentIndex1 / totalItems1) * 100);
+
+        if (currentIndex1 < totalItems1) {
+            loadQuestionGame1();
+        } else {
+            initGame2();
+        }
+    }
+
+    /* --- JUEGO 2: IDENTIFICAR DEFINICIONES --- */
+    let game2Items = [];
+    let currentIndex2 = 0;
+    let currentSelection2 = null;
+    const totalItems2 = 4;
+
+    const select2 = document.getElementById('customSelectGame2');
+    const trigger2 = select2.querySelector('.custom-select__trigger');
+    const options2 = select2.querySelectorAll('.custom-option');
+
+    trigger2.addEventListener('click', () => {
+        select2.classList.toggle('open');
+        playSound('tap');
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (!select2.contains(e.target)) select2.classList.remove('open');
+    });
+
+    options2.forEach(option => {
+        option.addEventListener('click', function() {
+            if(!select2.classList.contains('open')) return;
+            select2.classList.remove('open');
+            trigger2.querySelector('span').textContent = this.textContent;
+            select2.classList.add('selected'); 
+            currentSelection2 = this.getAttribute('data-value');
+            trigger2.classList.remove('correct', 'wrong');
+            playSound('tap'); // Sonido tap al seleccionar ítem
+        });
+    });
+
+    document.getElementById('checkBtnGame2').onclick = checkAnswerGame2;
+    document.getElementById('continueBtnGame2').onclick = nextLevelGame2;
+
+    function initGame2() {
+        showScreen('game2Screen');
+        correctGame2 = 0;
+        attemptsGame2 = 0;
+        currentIndex2 = 0;
+        updateProgress('progressFillGame2', 0);
+        
+        game2Items = shuffle([...game2Data]);
+        loadQuestionGame2();
+    }
+
+    function loadQuestionGame2() {
+        const item = game2Items[currentIndex2];
+        document.getElementById('game2Text').textContent = item.text;
+        
+        trigger2.querySelector('span').textContent = 'Fase lunar';
+        trigger2.classList.remove('selected', 'correct', 'wrong');
+        currentSelection2 = null;
+        
+        document.getElementById('checkBtnGame2').style.display = 'inline-flex';
+        document.getElementById('continueBtnGame2').style.display = 'none';
+    }
+
+    function checkAnswerGame2() {
+        if (!currentSelection2) {
+            alert("Por favor, selecciona una opción.");
+            return;
+        }
+        attemptsGame2++;
+        const correctType = game2Items[currentIndex2].type;
+
+        if (currentSelection2 === correctType) {
+            playSound('correct');
+            correctGame2++;
+            trigger2.classList.remove('wrong');
+            trigger2.classList.add('correct');
+            setTimeout(nextLevelGame2, 200);
+        } else {
+            playSound('error');
+            trigger2.classList.remove('correct');
+            trigger2.classList.add('wrong');
+            
+            document.getElementById('checkBtnGame2').style.display = 'none';
+            document.getElementById('continueBtnGame2').style.display = 'inline-flex';
+        }
+    }
+
+    function nextLevelGame2() {
+        currentIndex2++;
+        updateProgress('progressFillGame2', (currentIndex2 / totalItems2) * 100);
+
+        if (currentIndex2 < totalItems2) {
+            loadQuestionGame2();
+        } else {
+            initGame3();
+        }
+    }
+
+    /* --- JUEGO 3: EMPAREJAR --- */
+    let selectedCard = null;
+    let matchesFound = 0;
+    const totalMatches = 4;
+
+    function initGame3() {
+        showScreen('game3Screen');
+        matchesGame3 = 0;
+        attemptsGame3 = 0;
+        matchesFound = 0;
+        selectedCard = null;
+        updateProgress('progressFillGame3', 0);
+        
+        const container = document.getElementById('matchContainer');
+        container.innerHTML = '';
+        
+        const col1 = document.createElement('div');
+        col1.className = 'match-column';
+        const col2 = document.createElement('div');
+        col2.className = 'match-column';
+
+        // Crear tarjetas
+        let terms = game3Data.map(d => ({ type: 'term', id: d.id, content: d.term }));
+        let imgs = game3Data.map(d => ({ type: 'img', id: d.id, content: d.img }));
+        
+        terms = shuffle(terms);
+        imgs = shuffle(imgs);
+
+        terms.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.dataset.id = t.id;
+            card.dataset.type = 'term';
+            card.textContent = t.content;
+            card.onclick = () => selectMatchCard(card);
+            col1.appendChild(card);
+        });
+
+        imgs.forEach(i => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.dataset.id = i.id;
+            card.dataset.type = 'img';
+            card.innerHTML = `<img src="${i.content}" alt="Luna">`;
+            card.onclick = () => selectMatchCard(card);
+            col2.appendChild(card);
+        });
+
+        container.appendChild(col1);
+        container.appendChild(col2);
+    }
+
+    function selectMatchCard(card) {
+        if (card.classList.contains('matched')) return;
+
+        playSound('tap');
+
+        if (!selectedCard) {
+            // Primera selección
+            card.classList.add('selected');
+            selectedCard = card;
+        } else {
+            // Segunda selección
+            if (selectedCard === card) {
+                // Deseleccionar la misma tarjeta
+                card.classList.remove('selected');
+                selectedCard = null;
+                return;
+            }
+
+            // Si selecciona otra de la misma columna, cambiar selección
+            if (selectedCard.dataset.type === card.dataset.type) {
+                selectedCard.classList.remove('selected');
+                card.classList.add('selected');
+                selectedCard = card;
+                return;
+            }
+
+            // Es una pareja (columnas diferentes)
+            attemptsGame3++;
+            
+            const id1 = selectedCard.dataset.id;
+            const id2 = card.dataset.id;
+
+            if (id1 === id2) {
+                // Match correcto
+                playSound('correct');
+                matchesGame3++;
+                matchesFound++;
+                
+                selectedCard.classList.remove('selected');
+                selectedCard.classList.add('matched');
+                card.classList.add('matched');
+                
+                selectedCard = null;
+                
+                updateProgress('progressFillGame3', (matchesFound / totalMatches) * 100);
+
+                if (matchesFound === totalMatches) {
+                    setTimeout(finishGame, 1000);
+                }
+            } else {
+                // Match incorrecto
+                playSound('error');
+                
+                selectedCard.classList.add('flash-error');
+                card.classList.add('flash-error');
+                
+                const s1 = selectedCard;
+                const s2 = card;
+                
+                setTimeout(() => {
+                    s1.classList.remove('selected', 'flash-error');
+                    s2.classList.remove('flash-error');
+                }, 300);
+                
+                selectedCard = null;
+            }
+        }
+    }
+
+    /* --- FINALIZAR --- */
+    function finishGame() {
+        stopTimer();
+        finalTimeVal = elapsed;
+        
+        // Cálculo de puntuación
+        let score1 = attemptsGame1 > 0 ? (correctGame1 / attemptsGame1) : 0;
+        let score2 = attemptsGame2 > 0 ? (correctGame2 / attemptsGame2) : 0;
+        let score3 = attemptsGame3 > 0 ? (matchesGame3 / attemptsGame3) : 0;
+        
+        finalScoreVal = Math.round(((score1 + score2 + score3) / 3) * 100);
+
+        document.getElementById('finalScore').textContent = finalScoreVal;
+        document.getElementById('finalTime').textContent = formatTime(finalTimeVal);
+
+        const trophyBox = document.getElementById('trophyBox');
+        const msg = document.getElementById('finalMsg');
+        
+        if (finalScoreVal === 100) {
+            trophyBox.style.display = 'block';
+            msg.textContent = '¡Genial! ¡Puntuación perfecta!';
+            playSound('victory');
+            createConfetti();
+        } else if (finalScoreVal >= 80) {
+            trophyBox.style.display = 'none';
+            msg.textContent = 'Casi lo logras. ¡Sigue practicando!';
+            playSound('completed');
+        } else if (finalScoreVal >= 50) {
+            trophyBox.style.display = 'none';
+            msg.textContent = 'No está mal, pero aún puedes hacerlo mejor';
+            playSound('completed');
+        } else {
+            trophyBox.style.display = 'none';
+            msg.textContent = 'Vaya desastre... ¿Seguro que has estudiado?';
+            playSound('completed');
+        }
+
+        showScreen('finalScreen');
+        showSubmitModal(finalTimeVal, finalScoreVal);
+    }
+
+    function updateProgress(id, pct) {
+        document.getElementById(id).style.width = pct + '%';
+    }
+
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    /* --- EFECTOS VISUALES --- */
+    function createConfetti() {
+        for(let i=0;i<100;i++){
+            setTimeout(()=>{
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                const x = Math.random() * window.innerWidth;
+                const tx = (Math.random() - 0.5) * 200;
+                c.style.left = x + 'px';
+                c.style.top = '-10px';
+                c.style.backgroundColor = ['#ff595e','#1982c4','#6a4c93','#ffca3a','#8ac926'][Math.floor(Math.random()*5)];
+                c.style.setProperty('--tx', tx + 'px');
+                c.style.setProperty('--ty', window.innerHeight + 20 + 'px');
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 3000);
+            }, i * 20);
+        }
+    }
+
+    /* --- HALL OF FAME --- */
+    let isHofLoading = false;
+
+    function loadHallOfFame() {
+        if (isHofLoading) return;
+        isHofLoading = true;
+
+        const tbody = document.getElementById('hofTableBody');
+        tbody.innerHTML = '<tr><td colspan="4" class="hall-of-fame-loading">Cargando datos...</td></tr>';
+
+        const url = `${APP_SCRIPT_URL}?action=read&sheet=${SHEET_NAME}`;
+
+        const timeoutId = setTimeout(() => {
+            if(isHofLoading) {
+                tbody.innerHTML = '<tr><td colspan="4" class="hall-of-fame-error">Error de conexión (Timeout).</td></tr>';
+                isHofLoading = false;
+            }
+        }, 8000);
+
+        fetch(url)
+            .then(r => {
+                clearTimeout(timeoutId);
+                if(!r.ok) throw new Error("Network response was not ok");
+                return r.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.data) {
+                    
+                    const processedData = data.data.map(row => {
+                        const getVal = (keys) => {
+                            for(let key of keys) {
+                                if(row[key] !== undefined && row[key] !== "") return row[key];
+                            }
+                            return null;
+                        };
+                        return {
+                            Nombre: getVal(["Nombre", "nombre", "name"]),
+                            Apellidos: getVal(["Apellidos", "apellidos", "surname"]),
+                            Puntuación: getVal(["Puntuación", "puntuación", "score"]),
+                            Tiempo: getVal(["Tiempo", "tiempo", "time"])
+                        };
+                    });
+
+                    const validData = processedData.filter(row => row.Puntuación !== null && !isNaN(parseFloat(row.Puntuación)));
+
+                    if (validData.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="hall-of-fame-loading">¡Sé el primero en guardar tu puntuación!</td></tr>';
+                    } else {
+                        validData.sort((a, b) => {
+                            const scoreA = parseFloat(a.Puntuación) || 0;
+                            const scoreB = parseFloat(b.Puntuación) || 0;
+                            if (scoreB !== scoreA) return scoreB - scoreA;
+                            const timeA = parseFloat(a.Tiempo) || 9999;
+                            const timeB = parseFloat(b.Tiempo) || 9999;
+                            return timeA - timeB;
+                        });
+
+                        tbody.innerHTML = '';
+                        const top10 = validData.slice(0, 10);
+
+                        for (let i = 0; i < top10.length; i++) {
+                            const item = top10[i];
+                            const tr = document.createElement('tr');
+                            const displayName = `${item.Nombre} ${item.Apellidos}`.trim();
+                            let timeStr = item.Tiempo;
+                            if (!isNaN(parseFloat(item.Tiempo))) {
+                                const tVal = parseFloat(item.Tiempo);
+                                timeStr = formatTime(tVal);
+                            }
+                            const points = item.Puntuación || 0;
+
+                            tr.innerHTML = `
+                                <td>${i + 1}º</td>
+                                <td>${displayName}</td>
+                                <td>${points}</td>
+                                <td>${timeStr}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        }
+                    }
+
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="hall-of-fame-error">Error de datos.</td></tr>';
+                }
+            })
+            .catch(e => {
+                clearTimeout(timeoutId);
+                console.error("Error HoF:", e);
+                tbody.innerHTML = '<tr><td colspan="4" class="hall-of-fame-error">Error de conexión.</td></tr>';
+            })
+            .finally(() => {
+                isHofLoading = false;
+            });
+    }
+
+    function showSubmitModal(time, score) {
+        document.getElementById('modalTime').textContent = formatTime(time);
+        document.getElementById('playerName').value = '';
+        document.getElementById('playerSurname').value = '';
+        document.getElementById('submitModal').style.display = 'flex';
+        const btn = document.getElementById('submitScoreBtn');
+        btn.textContent = "Guardar";
+        btn.disabled = false;
+        document.getElementById('playerName').focus();
+    }
+
+    function handleSubmitScore() {
+        const btn = document.getElementById('submitScoreBtn');
+        const nameInput = document.getElementById('playerName');
+        const surnameInput = document.getElementById('playerSurname');
+        
+        playSound('tap');
+
+        const payload = {
+            score: finalScoreVal,
+            time: finalTimeVal, 
+            name: nameInput.value.trim(),
+            surname: surnameInput.value.trim()
+        };
+
+        if(payload.name && payload.surname) {
+            const originalText = btn.textContent;
+            btn.textContent = "Enviando...";
+            btn.disabled = true;
+
+            fetch(APP_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ sheet: SHEET_NAME, action: 'write', data: payload })
+            })
+            .then(() => {
+                document.getElementById('submitModal').style.display = 'none';
+                btn.textContent = originalText;
+                btn.disabled = false;
+                setTimeout(loadHallOfFame, 1500);
+            })
+            .catch(e => {
+                console.error("Error envío:", e);
+                alert("Error al enviar puntuación.");
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
+        } else {
+            alert("Por favor, rellena nombre y apellido");
+        }
+    }
+
+    document.getElementById('submitScoreBtn').onclick = handleSubmitScore;
+
+    document.getElementById('discardScoreBtn').onclick = () => { 
+        document.getElementById('submitModal').style.display = 'none'; 
+    };
+
+    document.getElementById('playerName').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            document.getElementById('playerSurname').focus();
+        }
+    });
+
+    document.getElementById('playerSurname').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            handleSubmitScore();
+        }
+    });
+
+    document.getElementById('backToMenuBtn').onclick = () => { 
+        playSound('tap'); 
+        location.reload(); 
+    };
+    
+    document.getElementById('muteBtn').onclick = toggleSound;
+
+    /* --- INIT --- */
+    document.addEventListener('DOMContentLoaded', () => { loadHallOfFame(); });
+
+</script>
+</body>
+</html>
