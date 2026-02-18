@@ -22,6 +22,10 @@
             --green:#2ecc71;
             --red:#e74c3c;
             --panel:#E8EAFF;
+            
+            /* Colores específicos para Juego 3 */
+            --card-base:#3498db;
+            --card-selected:#f1c40f;
         }
         body{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -108,13 +112,16 @@
             vertical-align: middle;
         }
         .summary-table tr:last-child td { border-bottom: none; }
+        
+        /* Ajuste de tamaño uniforme para imágenes de resumen */
         .summary-table img {
-            max-width: 80px;
-            width: 100%;
-            height: auto;
+            width: 80px;   /* Ancho fijo */
+            height: 80px;  /* Alto fijo */
+            object-fit: contain; /* Mantiene proporción sin deformar */
             transition: transform 0.3s;
         }
         .summary-table img:hover { transform: scale(1.1); }
+        
         .def-cell { font-size: clamp(0.8rem, 2vw, 0.95rem); color: #444; line-height: 1.4; }
 
         /* Juegos 1 y 2 */
@@ -139,10 +146,10 @@
         }
         /* Juego 1: Imágenes con tamaño uniforme */
         .image-display img {
-            width: 200px; /* Tamaño fijo para igualar escala */
-            height: 200px; /* Tamaño fijo */
+            width: 200px; 
+            height: 200px; 
             max-width: 100%;
-            object-fit: contain; /* Mantiene proporción sin recortar */
+            object-fit: contain; 
             border-radius: 8px;
         }
         .text-content {
@@ -277,7 +284,8 @@
             gap: 15px;
         }
         .match-card {
-            background: var(--blue-600);
+            /* Color Base Azul */
+            background-color: var(--card-base);
             color: white;
             border: 4px solid transparent;
             border-radius: 12px;
@@ -297,7 +305,7 @@
         }
         .match-card img {
             max-width: 100%;
-            max-height: 80px; /* Ajuste interno para imagen */
+            max-height: 80px;
             object-fit: contain;
         }
         .match-card:hover:not(.matched) {
@@ -305,7 +313,10 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         .match-card.selected {
-            border-color: var(--blue-dark);
+            /* Color Amarillo Seleccionado */
+            background-color: var(--card-selected);
+            border-color: transparent;
+            color: white;
             animation: pulse 1s infinite;
         }
         .match-card.matched {
@@ -320,12 +331,13 @@
         .match-card.flash-error {
             animation: shake 0.3s ease-in-out;
             border-color: var(--red);
+            background-color: var(--red); /* Rojo durante error */
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 79, 186, 0.7); }
-            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(37, 79, 186, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 79, 186, 0); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(241, 196, 15, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
         }
         @keyframes shake {
             0% { transform: translateX(0); }
@@ -434,10 +446,10 @@
                         <td><img src="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/Solar_system/Lunas/Menguante.png" alt="Cuarto Menguante"></td>
                     </tr>
                     <tr>
-                        <td class="def-cell">No vemos la Luna porque el Sol ilumina la <span class="highlight-keyword">cara oculta</span>.</td>
-                        <td class="def-cell">Vemos la mitad de la Luna. Tiene <span class="highlight-keyword">forma de D</span></td>
+                        <td class="def-cell">No vemos la Luna porque el Sol ilumina la cara oculta.</td>
+                        <td class="def-cell">Vemos la mitad de la Luna. Tiene forma de <span class="highlight-keyword">D</span></td>
                         <td class="def-cell">Vemos la luna totalmente <span class="highlight-keyword">llena</span></td>
-                        <td class="def-cell">Vemos la mitad de la Luna iluminada. Tiene <span class="highlight-keyword">forma de C</span></td>
+                        <td class="def-cell">Vemos la mitad de la Luna iluminada. Tiene forma de <span class="highlight-keyword">C</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -733,7 +745,7 @@
             select1.classList.add('selected'); 
             currentSelection1 = this.getAttribute('data-value');
             trigger1.classList.remove('correct', 'wrong');
-            playSound('tap'); // Sonido tap al seleccionar ítem
+            playSound('tap');
         });
     });
 
@@ -826,7 +838,7 @@
             select2.classList.add('selected'); 
             currentSelection2 = this.getAttribute('data-value');
             trigger2.classList.remove('correct', 'wrong');
-            playSound('tap'); // Sonido tap al seleccionar ítem
+            playSound('tap');
         });
     });
 
